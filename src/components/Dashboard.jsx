@@ -5,12 +5,13 @@ import {
   Plus,
   Printer,
   Download,
-  Upload,
-  Trash2,
-  Search,
-  FileText,
-  Eye,
-  X
+Upload,
+UploadCloud,
+Trash2,
+Search,
+FileText,
+Eye,
+X
 } from "lucide-react";
 import { categories, createDefaultTender } from "../data/templates";
 import { useLocalStorage } from "../hooks/useLocalStorage";
@@ -90,6 +91,65 @@ function addTender() {
     reader.onload = () => updateTender({ logo: reader.result });
     reader.readAsDataURL(file);
   }
+
+  function uploadCsv(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    const text = String(reader.result || "");
+    const lines = text
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    if (lines.length < 2) {
+      alert("CSV file is empty or missing item rows.");
+      return;
+    }
+
+    const headers = parseCsvLine(lines[0]).map((h) => h.trim().toLowerCase());
+
+    const categoryIndex = headers.findIndex((h) => h.includes("category"));
+    const requirementIndex = headers.findIndex((h) => h.includes("requirement") || h.includes("action"));
+    const mandatoryIndex = headers.findIndex((h) => h.includes("mandatory"));
+    const remarksIndex = headers.findIndex((h) => h.includes("remark") || h.includes("note"));
+    const statusIndex = headers.findIndex((h) => h.includes("status"));
+
+    if (categoryIndex === -1 || requirementIndex === -1) {
+      alert("CSV must include at least Category and Requirement columns.");
+      return;
+    }
+
+    const importedItems = lines.slice(1).map((line) => {
+      const cells = parseCsvLine(line);
+
+      const statusValue = cells[statusIndex]?.trim() || "Not Started";
+      const cleanStatus = statuses.includes(statusValue) ? statusValue : "Not Started";
+
+      return {
+        id: crypto.randomUUID(),
+        category: cells[categoryIndex]?.trim() || categories[0],
+        requirement: cells[requirementIndex]?.trim() || "Untitled requirement",
+        mandatory: ["yes", "true", "mandatory", "1"].includes(
+          String(cells[mandatoryIndex] || "").trim().toLowerCase()
+        ),
+        remarks: cells[remarksIndex]?.trim() || "",
+        status: cleanStatus
+      };
+    });
+
+    updateTender({
+      checklist: [...tender.checklist, ...importedItems]
+    });
+
+    e.target.value = "";
+  };
+
+  reader.readAsText(file);
+}
 
   const filteredItems = useMemo(() => {
     return tender.checklist
@@ -264,17 +324,16 @@ function addTender() {
               </select>
             </div>
 
-            <div className="no-print mb-5 flex flex-wrap gap-2">
-              <button onClick={addItem} className="rounded-xl bg-blue-700 px-4 py-2 text-sm font-bold text-white">Add Item</button>
-              {statuses.map((s) => (
-                <button key={s} onClick={() => bulkUpdate(s)} className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold hover:bg-slate-100">
-                  Mark All {s}
-                </button>
-              ))}
-              <button onClick={() => deleteTender(tender.id)} className="rounded-xl border border-red-200 px-4 py-2 text-sm font-bold text-red-600 hover:bg-red-50">
-                Delete Project
-              </button>
-            </div>
+           <div className="no-print mb-5 flex flex-wrap gap-2">
+  <button onClick={addItem} className="rounded-xl bg-blue-700 px-4 py-2 text-sm font-bold text-white">
+    Add Item
+  </button>
+
+  <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold hover:bg-slate-100">
+    <UploadCloud size={16} />
+    Upload CSV
+    <input type="file" accept=".csv,text/csv" onChange={uploadCsv} className="hidden" />
+  </label>
 
             <div className="hidden overflow-hidden rounded-2xl border border-slate-200 md:block">
               <table className="w-full text-left text-sm">
@@ -464,4 +523,30 @@ function Detail({ label, value }) {
       <p className="text-sm font-semibold text-slate-900">{value}</p>
     </div>
   );
+}
+
+function parseCsvLine(line) {
+  const result = [];
+  let current = "";
+  let insideQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    const next = line[i + 1];
+
+    if (char === '"' && insideQuotes && next === '"') {
+      current += '"';
+      i++;
+    } else if (char === '"') {
+      insideQuotes = !insideQuotes;
+    } else if (char === "," && !insideQuotes) {
+      result.push(current);
+      current = "";
+    } else {
+      current += char;
+    }
+  }
+
+  result.push(current);
+  return result;
 }
