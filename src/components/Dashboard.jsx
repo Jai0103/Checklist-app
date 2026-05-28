@@ -340,29 +340,16 @@ export default function Dashboard({ onLogout }) {
             <p className="text-sm text-slate-500">Auto-saved locally</p>
           </div>
 
-          <div className="flex gap-2">
-            <select
-              className="hidden rounded-xl border border-slate-200 px-3 py-2 text-sm font-bold text-slate-700 md:block"
-              value={activePage}
-              onChange={(e) => setActivePage(e.target.value)}
-            >
-              <option value="dashboard">Dashboard</option>
-              <option value="checklist">Checklist</option>
-              <option value="projects">Projects</option>
-              <option value="backup">Backup</option>
-            </select>
-
-            <button
-              onClick={requestLogout}
-              className="flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold hover:bg-slate-100"
-            >
-              <LogOut size={16} />
-              Logout
-            </button>
-          </div>
+          <button
+            onClick={requestLogout}
+            className="flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold hover:bg-slate-100"
+          >
+            <LogOut size={16} />
+            Logout
+          </button>
         </header>
 
-        <section className="p-5 md:p-8">
+        <section className="p-5 pb-28 md:p-8">
           {activePage === "dashboard" && (
             <PageCard>
               <ProjectHeader tender={tender} updateTender={updateTender} uploadLogo={uploadLogo} />
@@ -398,7 +385,7 @@ export default function Dashboard({ onLogout }) {
               <CategoryCards categoryStats={categoryStats} onViewCategory={setViewCategory} />
 
               <footer className="mt-8 border-t border-slate-200 pt-4 text-center text-sm text-slate-500">
-                Project Compliance Management System | Built by:<b>Jairus</b>
+                Project Compliance Management System
               </footer>
             </PageCard>
           )}
@@ -547,24 +534,33 @@ export default function Dashboard({ onLogout }) {
         </section>
       </main>
 
-      <button
-        onClick={addItem}
-        className="no-print fixed bottom-5 right-5 rounded-full bg-blue-700 p-4 text-white shadow-soft md:hidden"
-      >
-        <Plus />
-      </button>
+      <div className="no-print fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200 bg-white/95 px-3 py-2 shadow-2xl backdrop-blur lg:hidden">
+        <div className="grid grid-cols-4 gap-1">
+          <MobileNavButton icon={<LayoutDashboard size={18} />} label="Dashboard" active={activePage === "dashboard"} onClick={() => setActivePage("dashboard")} />
+          <MobileNavButton icon={<ListChecks size={18} />} label="Checklist" active={activePage === "checklist"} onClick={() => setActivePage("checklist")} />
+          <MobileNavButton icon={<FolderKanban size={18} />} label="Projects" active={activePage === "projects"} onClick={() => setActivePage("projects")} />
+          <MobileNavButton icon={<Archive size={18} />} label="Backup" active={activePage === "backup"} onClick={() => setActivePage("backup")} />
+        </div>
+      </div>
 
-      {viewItem && (
-        <ViewModal item={viewItem} tender={tender} onClose={() => setViewItem(null)} />
+      {activePage === "checklist" && (
+        <button
+          onClick={addItem}
+          className="no-print fixed bottom-20 right-5 z-50 rounded-full bg-blue-700 p-4 text-white shadow-soft md:hidden"
+        >
+          <Plus />
+        </button>
       )}
 
+      {viewItem && <ViewModal item={viewItem} tender={tender} onClose={() => setViewItem(null)} />}
+
       {viewCategory && (
-  <CategoryModal
-    category={viewCategory}
-    items={tender.checklist.filter((item) => item.category === viewCategory)}
-    onClose={() => setViewCategory(null)}
-  />
-)}
+        <CategoryModal
+          category={viewCategory}
+          items={tender.checklist.filter((item) => item.category === viewCategory)}
+          onClose={() => setViewCategory(null)}
+        />
+      )}
 
       {confirmDialog && (
         <ConfirmDialog
@@ -744,121 +740,14 @@ function CategoryCards({ categoryStats, onViewCategory }) {
           onClick={() => onViewCategory(item.category)}
           className="rounded-2xl border border-slate-200 bg-white p-4 text-left transition hover:-translate-y-0.5 hover:border-blue-200 hover:bg-blue-50/40 hover:shadow-soft"
         >
-          <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">
-            {item.category}
-          </p>
-
-          <p className="mt-2 text-lg font-bold text-slate-900">
-            {item.completed}/{item.total} completed
-          </p>
-
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">{item.category}</p>
+          <p className="mt-2 text-lg font-bold text-slate-900">{item.completed}/{item.total} completed</p>
           <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
-            <div
-              className="h-full bg-blue-700"
-              style={{ width: `${item.percentage}%` }}
-            />
+            <div className="h-full bg-blue-700" style={{ width: `${item.percentage}%` }} />
           </div>
-
-          <p className="mt-3 text-xs font-bold text-blue-700">
-            View items
-          </p>
+          <p className="mt-3 text-xs font-bold text-blue-700">View items</p>
         </button>
       ))}
-    </div>
-  );
-}
-
-function CategoryModal({ category, items, onClose }) {
-  const completed = items.filter((item) => item.status === "Completed").length;
-  const mandatoryOutstanding = items.filter(
-    (item) => item.mandatory && item.status !== "Completed"
-  ).length;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.96, y: 10 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="max-h-[88vh] w-full max-w-4xl overflow-hidden rounded-2xl bg-white shadow-2xl"
-      >
-        <div className="flex items-start justify-between gap-4 border-b border-slate-200 p-6">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-700">
-              Category Details
-            </p>
-            <h2 className="mt-2 text-2xl font-bold text-slate-900">
-              {category}
-            </h2>
-            <p className="mt-2 text-sm text-slate-500">
-              {completed}/{items.length} completed · {mandatoryOutstanding} mandatory outstanding
-            </p>
-          </div>
-
-          <button
-            onClick={onClose}
-            className="rounded-xl p-2 text-slate-500 hover:bg-slate-100"
-            title="Close"
-          >
-            <X size={22} />
-          </button>
-        </div>
-
-        <div className="max-h-[62vh] overflow-y-auto p-6">
-          <div className="space-y-3">
-            {items.map((item, index) => (
-              <div
-                key={item.id}
-                className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
-              >
-                <div className="mb-3 flex flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-slate-200 px-3 py-1 text-xs font-bold text-slate-700">
-                    #{index + 1}
-                  </span>
-
-                  <span
-                    className={`rounded-full px-3 py-1 text-xs font-bold ${
-                      item.mandatory
-                        ? "bg-red-100 text-red-700"
-                        : "bg-slate-200 text-slate-600"
-                    }`}
-                  >
-                    {item.mandatory ? "Mandatory" : "Optional"}
-                  </span>
-
-                  <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-700">
-                    {item.status}
-                  </span>
-
-                  <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-700">
-                    {item.priority || "Medium"}
-                  </span>
-                </div>
-
-                <h3 className="font-bold text-slate-900">
-                  {item.requirement}
-                </h3>
-
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  {item.remarks || "No remarks added."}
-                </p>
-
-                <p className="mt-3 text-xs font-bold uppercase tracking-[0.12em] text-slate-400">
-                  Owner: {item.owner || "Project Team"}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex justify-end border-t border-slate-200 p-5">
-          <button
-            onClick={onClose}
-            className="rounded-xl bg-blue-700 px-5 py-2.5 text-sm font-bold text-white hover:bg-blue-800"
-          >
-            Close
-          </button>
-        </div>
-      </motion.div>
     </div>
   );
 }
@@ -873,6 +762,20 @@ function NavButton({ icon, label, active, onClick }) {
     >
       {icon}
       {label}
+    </button>
+  );
+}
+
+function MobileNavButton({ icon, label, active, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex flex-col items-center justify-center rounded-xl px-2 py-2 text-[11px] font-bold ${
+        active ? "bg-blue-50 text-blue-800" : "text-slate-500"
+      }`}
+    >
+      {icon}
+      <span className="mt-1">{label}</span>
     </button>
   );
 }
@@ -937,6 +840,60 @@ function ViewModal({ item, tender, onClose }) {
         </div>
 
         <div className="mt-6 flex justify-end">
+          <button onClick={onClose} className="rounded-xl bg-blue-700 px-5 py-2.5 text-sm font-bold text-white hover:bg-blue-800">
+            Close
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function CategoryModal({ category, items, onClose }) {
+  const completed = items.filter((item) => item.status === "Completed").length;
+  const mandatoryOutstanding = items.filter((item) => item.mandatory && item.status !== "Completed").length;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
+      <motion.div initial={{ opacity: 0, scale: 0.96, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} className="max-h-[88vh] w-full max-w-4xl overflow-hidden rounded-2xl bg-white shadow-2xl">
+        <div className="flex items-start justify-between gap-4 border-b border-slate-200 p-6">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-700">Category Details</p>
+            <h2 className="mt-2 text-2xl font-bold text-slate-900">{category}</h2>
+            <p className="mt-2 text-sm text-slate-500">
+              {completed}/{items.length} completed · {mandatoryOutstanding} mandatory outstanding
+            </p>
+          </div>
+
+          <button onClick={onClose} className="rounded-xl p-2 text-slate-500 hover:bg-slate-100" title="Close">
+            <X size={22} />
+          </button>
+        </div>
+
+        <div className="max-h-[62vh] overflow-y-auto p-6">
+          <div className="space-y-3">
+            {items.map((item, index) => (
+              <div key={item.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <div className="mb-3 flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-slate-200 px-3 py-1 text-xs font-bold text-slate-700">#{index + 1}</span>
+                  <span className={`rounded-full px-3 py-1 text-xs font-bold ${item.mandatory ? "bg-red-100 text-red-700" : "bg-slate-200 text-slate-600"}`}>
+                    {item.mandatory ? "Mandatory" : "Optional"}
+                  </span>
+                  <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-700">{item.status}</span>
+                  <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-700">{item.priority || "Medium"}</span>
+                </div>
+
+                <h3 className="font-bold text-slate-900">{item.requirement}</h3>
+                <p className="mt-2 text-sm leading-6 text-slate-600">{item.remarks || "No remarks added."}</p>
+                <p className="mt-3 text-xs font-bold uppercase tracking-[0.12em] text-slate-400">
+                  Owner: {item.owner || "Project Team"}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex justify-end border-t border-slate-200 p-5">
           <button onClick={onClose} className="rounded-xl bg-blue-700 px-5 py-2.5 text-sm font-bold text-white hover:bg-blue-800">
             Close
           </button>
