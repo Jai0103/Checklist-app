@@ -509,82 +509,67 @@ const categoryStats = useMemo(() => {
 </div>
             <div className="hidden overflow-hidden rounded-2xl border border-slate-200 md:block">
               <table className="w-full text-left text-sm">
-                <thead className="bg-slate-100 text-slate-700">
-                  <tr>
-                    <th className="p-3">Category</th>
-                    <th className="p-3">Requirement / Action Item</th>
-                    <th className="p-3">Mandatory</th>
-                    <th className="p-3">Remarks</th>
-<th className="p-3">Owner</th>
-<th className="p-3">Priority</th>
-<th className="p-3">Status</th>
-<th className="no-print p-3"></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredItems.map((item) => (
-                    <tr key={item.id} className="border-t border-slate-200">
-                      <td className="p-3">
-  <input
-    className="cell"
-    value={item.remarks}
-    onChange={(e) => updateItem(item.id, { remarks: e.target.value })}
-  />
-</td>
+  <thead className="bg-slate-100 text-slate-700">
+    <tr>
+      <th className="p-3">Category</th>
+      <th className="p-3">Requirement / Action Item</th>
+      <th className="p-3">Mandatory</th>
+      <th className="p-3">Remarks</th>
+      <th className="p-3">Owner</th>
+      <th className="p-3">Priority</th>
+      <th className="p-3">Status</th>
+      <th className="no-print p-3"></th>
+    </tr>
+  </thead>
 
-<td className="p-3">
-  <input
-    className="cell"
-    value={item.owner || ""}
-    onChange={(e) => updateItem(item.id, { owner: e.target.value })}
-    placeholder="Owner"
-  />
-</td>
+  <tbody>
+    {filteredItems.map((item) => (
+      <tr key={item.id} className="border-t border-slate-200">
+        <td className="p-3">
+          <select
+            className="cell"
+            value={item.category}
+            onChange={(e) => updateItem(item.id, { category: e.target.value })}
+          >
+            {categories.map((c) => (
+              <option key={c}>{c}</option>
+            ))}
+          </select>
+        </td>
 
-<td className="p-3">
-  <select
-    className="cell"
-    value={item.priority || "Medium"}
-    onChange={(e) => updateItem(item.id, { priority: e.target.value })}
-  >
-    <option>High</option>
-    <option>Medium</option>
-    <option>Low</option>
-  </select>
-</td>
+        <td className="p-3">
+          <input
+            className="cell"
+            value={item.requirement}
+            onChange={(e) => updateItem(item.id, { requirement: e.target.value })}
+          />
+        </td>
 
-<td className="p-3">
-  <select
-    className="cell"
-    value={item.status}
-    onChange={(e) => updateItem(item.id, { status: e.target.value })}
-  >
-    {statuses.map((s) => <option key={s}>{s}</option>)}
-  </select>
-</td>
-<td className="no-print p-3">
-  <div className="flex items-center gap-2">
-    <button
-      onClick={() => setViewItem(item)}
-      className="rounded-lg p-2 text-blue-700 hover:bg-blue-50"
-      title="View item"
-    >
-      <Eye size={18} />
-    </button>
+        <td className="p-3">
+          <button
+            onClick={() => updateItem(item.id, { mandatory: !item.mandatory })}
+            className={`rounded-full px-3 py-1 text-xs font-bold ${
+              item.mandatory
+                ? "bg-red-100 text-red-700"
+                : "bg-slate-100 text-slate-600"
+            }`}
+          >
+            {item.mandatory ? "Yes" : "No"}
+          </button>
+        </td>
 
-    <button
-      onClick={() => deleteItem(item.id)}
-      className="rounded-lg p-2 text-red-600 hover:bg-red-50"
-      title="Delete item"
-    >
-      <Trash2 size={18} />
-    </button>
-  </div>
-</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+        <td className="p-3">
+          <input
+            className="cell"
+            value={item.remarks}
+            onChange={(e) => updateItem(item.id, { remarks: e.target.value })}
+          />
+        </td>
+
+        <td className="p-3">
+          <input
+            className="cell"
+            value={item.owner ||
             </div>
 
             <div className="space-y-4 md:hidden">
