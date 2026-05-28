@@ -27,34 +27,53 @@ export default function Login({ onLogin }) {
           transition={{ duration: 0.45 }}
           className="grid w-full overflow-hidden rounded-[2rem] border border-white/10 bg-white shadow-2xl md:grid-cols-[1.05fr_0.95fr]"
         >
-          <section className="hidden bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 p-10 md:flex md:flex-col md:justify-between">
-            <div>
-              <div className="mb-10 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-white ring-1 ring-white/20">
-                <ShieldCheck size={30} />
-              </div>
+<section className="hidden bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 p-10 md:flex md:flex-col md:justify-between">
+  <div>
+    <div className="mb-10 flex h-20 w-48 items-center justify-center rounded-2xl bg-white p-4 shadow-xl shadow-black/20">
+      <img
+        src="./AGA_Logo_fullcolor_Horizontal.png"
+        alt="AGA Company Logo"
+        className="h-full w-full object-contain"
+      />
+    </div>
 
-              <h1 className="max-w-md text-4xl font-bold leading-tight">
-                Tender submission control for serious internal teams.
-              </h1>
+    <p className="mb-3 text-xs font-bold uppercase tracking-[0.22em] text-blue-200">
+      Internal Tender Control
+    </p>
 
-              <p className="mt-5 max-w-md text-sm leading-6 text-blue-100/80">
-                Manage tender documents, compliance items, submission readiness,
-                deadlines, and approval status from one private browser-based system.
-              </p>
-            </div>
+    <h1 className="max-w-md text-4xl font-bold leading-tight text-white">
+      Tender submission readiness, organized in one secure workspace.
+    </h1>
 
-            <div className="grid grid-cols-3 gap-3 text-xs text-blue-100/80">
-              <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
-                Local only
-              </div>
-              <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
-                No backend
-              </div>
-              <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
-                GitHub Pages
-              </div>
-            </div>
-          </section>
+    <p className="mt-5 max-w-md text-sm leading-6 text-blue-100/80">
+      Track mandatory documents, technical requirements, commercial items,
+      compliance evidence, approvals, and final submission status before every deadline.
+    </p>
+  </div>
+
+  <div>
+    <div className="grid grid-cols-3 gap-3 text-xs text-blue-100/85">
+      <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
+        <strong className="mb-1 block text-white">Checklist</strong>
+        Structured tender requirements
+      </div>
+
+      <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
+        <strong className="mb-1 block text-white">Compliance</strong>
+        Mandatory item tracking
+      </div>
+
+      <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
+        <strong className="mb-1 block text-white">Deadline</strong>
+        Submission readiness view
+      </div>
+    </div>
+
+    <p className="mt-6 text-xs leading-5 text-blue-100/60">
+      Private frontend-only system. Data is stored locally in this browser.
+    </p>
+  </div>
+</section>
 
           <form onSubmit={submit} className="bg-white p-8 text-slate-900 md:p-12">
             <div className="mb-8">
