@@ -31,7 +31,7 @@ export default function Login({ onLogin }) {
             <div>
 <div className="mb-10 flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-white p-2">
   <img
-    src="./logo.png"
+    src="./AGA_Logo_fullcolor_Horizontal.png"
     alt="Company Logo"
     className="h-full w-full object-contain"
   />
