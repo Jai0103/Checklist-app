@@ -325,16 +325,41 @@ function addTender() {
             </div>
 
            <div className="no-print mb-5 flex flex-wrap gap-2">
-  <button onClick={addItem} className="rounded-xl bg-blue-700 px-4 py-2 text-sm font-bold text-white">
+  <button
+    onClick={addItem}
+    className="rounded-xl bg-blue-700 px-4 py-2 text-sm font-bold text-white"
+  >
     Add Item
   </button>
 
   <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold hover:bg-slate-100">
     <UploadCloud size={16} />
     Upload CSV
-    <input type="file" accept=".csv,text/csv" onChange={uploadCsv} className="hidden" />
+    <input
+      type="file"
+      accept=".csv,text/csv"
+      onChange={uploadCsv}
+      className="hidden"
+    />
   </label>
 
+  {statuses.map((s) => (
+    <button
+      key={s}
+      onClick={() => bulkUpdate(s)}
+      className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold hover:bg-slate-100"
+    >
+      Mark All {s}
+    </button>
+  ))}
+
+  <button
+    onClick={() => deleteTender(tender.id)}
+    className="rounded-xl border border-red-200 px-4 py-2 text-sm font-bold text-red-600 hover:bg-red-50"
+  >
+    Delete Project
+  </button>
+</div>
             <div className="hidden overflow-hidden rounded-2xl border border-slate-200 md:block">
               <table className="w-full text-left text-sm">
                 <thead className="bg-slate-100 text-slate-700">
