@@ -128,7 +128,7 @@ function addTender() {
             <FileText />
           </div>
           <div>
-            <h2 className="font-bold text-slate-900">Project System</h2>
+            <h2 className="font-bold text-slate-900">Project Management System</h2>
             <p className="text-xs text-slate-500">Project Compliance Tool</p>
           </div>
         </div>
