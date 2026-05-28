@@ -5,17 +5,19 @@ import {
   Plus,
   Printer,
   Download,
-Upload,
-UploadCloud,
-Trash2,
-Search,
-FileText,
-Eye,
-X
+  Upload,
+  UploadCloud,
+  Trash2,
+  Search,
+  FileText,
+  Eye,
+  X,
+  Database,
+  ClipboardCheck
 } from "lucide-react";
 import { categories, createDefaultTender } from "../data/templates";
 import { useLocalStorage } from "../hooks/useLocalStorage";
-import { exportTenderCsv } from "../utils/exportCsv";
+import { exportTenderCsv, downloadCsvTemplate } from "../utils/exportCsv";
 
 const statuses = ["Not Started", "In Progress", "Completed", "Pending Review"];
 
@@ -26,6 +28,7 @@ export default function Dashboard({ onLogout }) {
   const [category, setCategory] = useState("");
   const [sortStatus, setSortStatus] = useState("");
   const [viewItem, setViewItem] = useState(null);
+  const [mandatoryOnly, setMandatoryOnly] = useState(false);
 
   const tender = tenders.find((t) => t.id === activeId) || tenders[0];
 
@@ -91,6 +94,52 @@ function addTender() {
     reader.onload = () => updateTender({ logo: reader.result });
     reader.readAsDataURL(file);
   }
+
+  function exportBackup() {
+  const backup = {
+    exportedAt: new Date().toISOString(),
+    tenders
+  };
+
+  const blob = new Blob([JSON.stringify(backup, null, 2)], {
+    type: "application/json"
+  });
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = "project-management-backup.json";
+  link.click();
+
+  URL.revokeObjectURL(url);
+}
+
+function importBackup(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    try {
+      const backup = JSON.parse(reader.result);
+
+      if (!Array.isArray(backup.tenders)) {
+        alert("Invalid backup file.");
+        return;
+      }
+
+      setTenders(backup.tenders);
+      setActiveId(backup.tenders[0]?.id);
+      e.target.value = "";
+    } catch {
+      alert("Unable to import backup file.");
+    }
+  };
+
+  reader.readAsText(file);
+}
 
   function uploadCsv(e) {
   const file = e.target.files[0];
@@ -158,30 +207,68 @@ function addTender() {
           item.requirement.toLowerCase().includes(search.toLowerCase()) ||
           item.remarks.toLowerCase().includes(search.toLowerCase());
 
-        const matchCategory = category ? item.category === category : true;
-        return matchSearch && matchCategory;
+const matchCategory = category ? item.category === category : true;
+const matchMandatory = mandatoryOnly ? item.mandatory && item.status !== "Completed" : true;
+
+return matchSearch && matchCategory && matchMandatory;
       })
       .sort((a, b) => {
         if (!sortStatus) return 0;
         return a.status === sortStatus ? -1 : b.status === sortStatus ? 1 : 0;
       });
-  }, [tender, search, category, sortStatus]);
+  }, [tender, search, category, sortStatus, mandatoryOnly]);
 
-  const analytics = useMemo(() => {
-    const total = tender.checklist.length;
-    const completed = tender.checklist.filter((i) => i.status === "Completed").length;
-    const pending = total - completed;
-    const mandatoryOutstanding = tender.checklist.filter(
-      (i) => i.mandatory && i.status !== "Completed"
-    ).length;
-    const percentage = total ? Math.round((completed / total) * 100) : 0;
+const analytics = useMemo(() => {
+  const total = tender.checklist.length;
+  const completed = tender.checklist.filter((i) => i.status === "Completed").length;
+  const pending = total - completed;
+  const pendingReview = tender.checklist.filter((i) => i.status === "Pending Review").length;
+  const mandatoryOutstanding = tender.checklist.filter(
+    (i) => i.mandatory && i.status !== "Completed"
+  ).length;
+  const percentage = total ? Math.round((completed / total) * 100) : 0;
 
-    return { total, completed, pending, mandatoryOutstanding, percentage };
-  }, [tender]);
+  return { total, completed, pending, pendingReview, mandatoryOutstanding, percentage };
+}, [tender]);
 
   const daysLeft = tender.deadline
-    ? Math.ceil((new Date(tender.deadline) - new Date()) / 86400000)
-    : null;
+  ? Math.ceil((new Date(tender.deadline) - new Date()) / 86400000)
+  : null;
+
+const projectRisk = useMemo(() => {
+  if (daysLeft !== null && daysLeft < 0) {
+    return { label: "Overdue", className: "bg-red-100 text-red-700 border-red-200" };
+  }
+
+  if (analytics.mandatoryOutstanding === 0 && analytics.pendingReview === 0) {
+    return { label: "Ready", className: "bg-green-100 text-green-700 border-green-200" };
+  }
+
+  if (daysLeft !== null && daysLeft <= 7 && analytics.mandatoryOutstanding > 0) {
+    return { label: "At Risk", className: "bg-red-100 text-red-700 border-red-200" };
+  }
+
+  if (analytics.pendingReview > 0) {
+    return { label: "Needs Review", className: "bg-amber-100 text-amber-700 border-amber-200" };
+  }
+
+  return { label: "In Progress", className: "bg-blue-100 text-blue-700 border-blue-200" };
+}, [analytics, daysLeft]);
+
+const categoryStats = useMemo(() => {
+  return categories
+    .map((cat) => {
+      const items = tender.checklist.filter((item) => item.category === cat);
+      const completed = items.filter((item) => item.status === "Completed").length;
+      const total = items.length;
+      const percentage = total ? Math.round((completed / total) * 100) : 0;
+
+      return { category: cat, completed, total, percentage };
+    })
+    .filter((item) => item.total > 0);
+}, [tender]);
+
+
 
   return (
     <div className="min-h-screen bg-slate-50">
