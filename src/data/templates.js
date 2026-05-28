@@ -34,9 +34,9 @@ export const defaultChecklist = [
 export function createDefaultTender() {
   return {
     id: crypto.randomUUID(),
-    name: "New Tender Project",
-    reference: "TDR-001",
-    companyName: "Your Company",
+    name: "New Project",
+    reference: "PA-ITT-2026-0038",
+    companyName: "Apollo Global Academy",
     deadline: "",
     logo: "",
     checklist: defaultChecklist
