@@ -8,7 +8,9 @@ import {
   Upload,
   Trash2,
   Search,
-  FileText
+  FileText,
+  Eye,
+  X
 } from "lucide-react";
 import { categories, createDefaultTender } from "../data/templates";
 import { useLocalStorage } from "../hooks/useLocalStorage";
@@ -22,6 +24,7 @@ export default function Dashboard({ onLogout }) {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
   const [sortStatus, setSortStatus] = useState("");
+  const [viewItem, setViewItem] = useState(null);
 
   const tender = tenders.find((t) => t.id === activeId) || tenders[0];
 
@@ -309,11 +312,25 @@ function addTender() {
                           {statuses.map((s) => <option key={s}>{s}</option>)}
                         </select>
                       </td>
-                      <td className="no-print p-3">
-                        <button onClick={() => deleteItem(item.id)} className="text-red-600">
-                          <Trash2 size={18} />
-                        </button>
-                      </td>
+<td className="no-print p-3">
+  <div className="flex items-center gap-2">
+    <button
+      onClick={() => setViewItem(item)}
+      className="rounded-lg p-2 text-blue-700 hover:bg-blue-50"
+      title="View item"
+    >
+      <Eye size={18} />
+    </button>
+
+    <button
+      onClick={() => deleteItem(item.id)}
+      className="rounded-lg p-2 text-red-600 hover:bg-red-50"
+      title="Delete item"
+    >
+      <Trash2 size={18} />
+    </button>
+  </div>
+</td>
                     </tr>
                   ))}
                 </tbody>
@@ -331,6 +348,23 @@ function addTender() {
                   <select className="input" value={item.status} onChange={(e) => updateItem(item.id, { status: e.target.value })}>
                     {statuses.map((s) => <option key={s}>{s}</option>)}
                   </select>
+                  <div className="mt-3 flex gap-2">
+  <button
+    onClick={() => setViewItem(item)}
+    className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-blue-700 px-4 py-2 text-sm font-bold text-white"
+  >
+    <Eye size={16} />
+    View
+  </button>
+
+  <button
+    onClick={() => deleteItem(item.id)}
+    className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-200 px-4 py-2 text-sm font-bold text-red-600"
+  >
+    <Trash2 size={16} />
+    Delete
+  </button>
+</div>
                 </div>
               ))}
             </div>
@@ -345,6 +379,60 @@ function addTender() {
       <button onClick={addItem} className="no-print fixed bottom-5 right-5 rounded-full bg-blue-700 p-4 text-white shadow-soft md:hidden">
         <Plus />
       </button>
+
+      {viewItem && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.96, y: 10 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl"
+    >
+      <div className="mb-5 flex items-start justify-between gap-4">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-700">
+            Checklist Item
+          </p>
+          <h2 className="mt-2 text-2xl font-bold text-slate-900">
+            {viewItem.requirement}
+          </h2>
+        </div>
+
+        <button
+          onClick={() => setViewItem(null)}
+          className="rounded-xl p-2 text-slate-500 hover:bg-slate-100"
+          title="Close"
+        >
+          <X size={22} />
+        </button>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <Detail label="Category" value={viewItem.category} />
+        <Detail label="Status" value={viewItem.status} />
+        <Detail label="Mandatory" value={viewItem.mandatory ? "Yes" : "No"} />
+        <Detail label="Project Reference" value={tender.reference || "-"} />
+      </div>
+
+      <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <p className="mb-2 text-xs font-bold uppercase tracking-[0.14em] text-slate-500">
+          Remarks / Notes
+        </p>
+        <p className="whitespace-pre-wrap text-sm leading-6 text-slate-800">
+          {viewItem.remarks || "No remarks added."}
+        </p>
+      </div>
+
+      <div className="mt-6 flex justify-end">
+        <button
+          onClick={() => setViewItem(null)}
+          className="rounded-xl bg-blue-700 px-5 py-2.5 text-sm font-bold text-white hover:bg-blue-800"
+        >
+          Close
+        </button>
+      </div>
+    </motion.div>
+  </div>
+)}
     </div>
   );
 }
@@ -363,6 +451,17 @@ function Stat({ label, value, danger }) {
     <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
       <div className={`text-2xl font-bold ${danger ? "text-red-600" : "text-slate-900"}`}>{value}</div>
       <div className="text-xs font-medium text-slate-500">{label}</div>
+    </div>
+  );
+}
+
+function Detail({ label, value }) {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+      <p className="mb-1 text-xs font-bold uppercase tracking-[0.14em] text-slate-500">
+        {label}
+      </p>
+      <p className="text-sm font-semibold text-slate-900">{value}</p>
     </div>
   );
 }
