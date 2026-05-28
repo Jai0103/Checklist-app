@@ -13,7 +13,8 @@ import {
   Eye,
   X,
   Database,
-  ClipboardCheck
+  ClipboardCheck,
+  AlertTriangle
 } from "lucide-react";
 import { categories, createDefaultTender } from "../data/templates";
 import { useLocalStorage } from "../hooks/useLocalStorage";
@@ -30,6 +31,7 @@ export default function Dashboard({ onLogout }) {
   const [sortStatus, setSortStatus] = useState("");
   const [viewItem, setViewItem] = useState(null);
   const [mandatoryOnly, setMandatoryOnly] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState(null);
 
   const tender = tenders.find((t) => t.id === activeId) || tenders[0];
 
@@ -43,6 +45,52 @@ export default function Dashboard({ onLogout }) {
     });
   }
 
+  function requestLogout() {
+    setConfirmDialog({
+      title: "Confirm logout",
+      message: "You are about to leave the project dashboard. Your latest changes are already saved locally in this browser.",
+      confirmLabel: "Logout",
+      danger: false,
+      onConfirm: () => {
+        localStorage.removeItem("auth");
+        onLogout();
+      }
+    });
+  }
+
+  function requestDeleteProject() {
+    if (tenders.length === 1) {
+      alert("At least one project is required.");
+      return;
+    }
+
+    setConfirmDialog({
+      title: "Delete this project?",
+      message: `This will permanently remove "${tender.name}" and all checklist items stored for this project in this browser.`,
+      confirmLabel: "Delete Project",
+      danger: true,
+      onConfirm: () => {
+        const next = tenders.filter((t) => t.id !== tender.id);
+        setTenders(next);
+        setActiveId(next[0].id);
+      }
+    });
+  }
+
+  function requestDeleteItem(item) {
+    setConfirmDialog({
+      title: "Delete checklist item?",
+      message: `This will remove "${item.requirement}" from the current project checklist.`,
+      confirmLabel: "Delete Item",
+      danger: true,
+      onConfirm: () => {
+        updateTender({
+          checklist: tender.checklist.filter((current) => current.id !== item.id)
+        });
+      }
+    });
+  }
+
   function addTender() {
     const next = createDefaultTender();
     next.companyName = tender?.companyName || "Apollo Global Academy";
@@ -50,14 +98,6 @@ export default function Dashboard({ onLogout }) {
     next.reference = `PA-ITT-2026-${String(tenders.length + 1).padStart(4, "0")}`;
     setTenders([...tenders, next]);
     setActiveId(next.id);
-  }
-
-  function deleteTender(id) {
-    if (tenders.length === 1) return alert("At least one project is required.");
-
-    const next = tenders.filter((t) => t.id !== id);
-    setTenders(next);
-    setActiveId(next[0].id);
   }
 
   function addItem() {
@@ -75,12 +115,6 @@ export default function Dashboard({ onLogout }) {
           status: "Not Started"
         }
       ]
-    });
-  }
-
-  function deleteItem(id) {
-    updateTender({
-      checklist: tender.checklist.filter((item) => item.id !== id)
     });
   }
 
@@ -329,11 +363,9 @@ export default function Dashboard({ onLogout }) {
             <h1 className="text-xl font-bold text-slate-900">Project Dashboard</h1>
             <p className="text-sm text-slate-500">Auto-saved locally</p>
           </div>
+
           <button
-            onClick={() => {
-              localStorage.removeItem("auth");
-              onLogout();
-            }}
+            onClick={requestLogout}
             className="flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold hover:bg-slate-100"
           >
             <LogOut size={16} />
@@ -356,6 +388,7 @@ export default function Dashboard({ onLogout }) {
                     <Upload className="text-slate-400" />
                   )}
                 </div>
+
                 <div>
                   <input
                     className="w-full text-2xl font-bold text-slate-900 outline-none"
@@ -553,7 +586,7 @@ export default function Dashboard({ onLogout }) {
               ))}
 
               <button
-                onClick={() => deleteTender(tender.id)}
+                onClick={requestDeleteProject}
                 className="rounded-xl border border-red-200 px-4 py-2 text-sm font-bold text-red-600 hover:bg-red-50"
               >
                 Delete Project
@@ -663,7 +696,7 @@ export default function Dashboard({ onLogout }) {
                           </button>
 
                           <button
-                            onClick={() => deleteItem(item.id)}
+                            onClick={() => requestDeleteItem(item)}
                             className="rounded-lg p-2 text-red-600 hover:bg-red-50"
                             title="Delete item"
                           >
@@ -740,7 +773,7 @@ export default function Dashboard({ onLogout }) {
                     </button>
 
                     <button
-                      onClick={() => deleteItem(item.id)}
+                      onClick={() => requestDeleteItem(item)}
                       className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-red-200 px-4 py-2 text-sm font-bold text-red-600"
                     >
                       <Trash2 size={16} />
@@ -820,6 +853,17 @@ export default function Dashboard({ onLogout }) {
           </motion.div>
         </div>
       )}
+
+      {confirmDialog && (
+        <ConfirmDialog
+          dialog={confirmDialog}
+          onCancel={() => setConfirmDialog(null)}
+          onConfirm={() => {
+            confirmDialog.onConfirm();
+            setConfirmDialog(null);
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -851,6 +895,53 @@ function Detail({ label, value }) {
         {label}
       </p>
       <p className="text-sm font-semibold text-slate-900">{value}</p>
+    </div>
+  );
+}
+
+function ConfirmDialog({ dialog, onCancel, onConfirm }) {
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96, y: 12 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
+      >
+        <div className="mb-5 flex items-start gap-4">
+          <div
+            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${
+              dialog.danger
+                ? "bg-red-100 text-red-700"
+                : "bg-blue-100 text-blue-700"
+            }`}
+          >
+            <AlertTriangle size={24} />
+          </div>
+
+          <div>
+            <h2 className="text-xl font-bold text-slate-900">{dialog.title}</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-500">{dialog.message}</p>
+          </div>
+        </div>
+
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={onCancel}
+            className="rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-100"
+          >
+            Cancel
+          </button>
+
+          <button
+            onClick={onConfirm}
+            className={`rounded-xl px-4 py-2.5 text-sm font-bold text-white ${
+              dialog.danger ? "bg-red-600 hover:bg-red-700" : "bg-blue-700 hover:bg-blue-800"
+            }`}
+          >
+            {dialog.confirmLabel}
+          </button>
+        </div>
+      </motion.div>
     </div>
   );
 }
