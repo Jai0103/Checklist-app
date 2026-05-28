@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { LockKeyhole, ShieldCheck } from "lucide-react";
+import { LockKeyhole } from "lucide-react";
 
 export default function Login({ onLogin }) {
   const [form, setForm] = useState({ username: "", password: "" });
