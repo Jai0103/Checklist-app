@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { LockKeyhole } from "lucide-react";
+const logoUrl = `${import.meta.env.BASE_URL}AGA_Logo_fullcolor_Horizontal.png`;
 
 export default function Login({ onLogin }) {
   const [form, setForm] = useState({ username: "", password: "" });
@@ -70,7 +71,7 @@ export default function Login({ onLogin }) {
     </div>
 
     <p className="mt-6 text-xs leading-5 text-blue-100/60">
-      Private frontend-only system. Data is stored locally in this browser.
+      Build by: Jairus 
     </p>
   </div>
 </section>
@@ -123,7 +124,7 @@ export default function Login({ onLogin }) {
             </button>
 
             <p className="mt-6 text-center text-xs text-slate-400">
-              Frontend-only access gate. Data is stored in this browser.
+              
             </p>
           </form>
         </motion.div>
