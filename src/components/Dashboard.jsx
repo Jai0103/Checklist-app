@@ -35,13 +35,14 @@ export default function Dashboard({ onLogout }) {
     });
   }
 
-  function addTender() {
-    const next = createDefaultTender();
-    next.name = `Tender Project ${tenders.length + 1}`;
-    next.reference = `TDR-${String(tenders.length + 1).padStart(3, "0")}`;
-    setTenders([...tenders, next]);
-    setActiveId(next.id);
-  }
+function addTender() {
+  const next = createDefaultTender();
+  next.companyName = tender?.companyName || "AGA";
+  next.name = `Project ${tenders.length + 1}`;
+  next.reference = `PA-ITT-2026-${String(tenders.length + 1).padStart(4, "0")}`;
+  setTenders([...tenders, next]);
+  setActiveId(next.id);
+}
 
   function deleteTender(id) {
     if (tenders.length === 1) return alert("At least one tender project is required.");
@@ -127,8 +128,8 @@ export default function Dashboard({ onLogout }) {
             <FileText />
           </div>
           <div>
-            <h2 className="font-bold text-slate-900">Tender System</h2>
-            <p className="text-xs text-slate-500">Internal compliance tool</p>
+            <h2 className="font-bold text-slate-900">Project System</h2>
+            <p className="text-xs text-slate-500">Project Compliance Tool</p>
           </div>
         </div>
 
@@ -137,7 +138,7 @@ export default function Dashboard({ onLogout }) {
           className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-700 px-4 py-3 font-bold text-white hover:bg-blue-800"
         >
           <Plus size={18} />
-          New Tender
+          New Project
         </button>
 
         <div className="space-y-2">
@@ -161,7 +162,7 @@ export default function Dashboard({ onLogout }) {
       <main className="lg:pl-72">
         <header className="no-print sticky top-0 z-10 flex items-center justify-between border-b border-slate-200 bg-white/90 px-6 py-4 backdrop-blur">
           <div>
-            <h1 className="text-xl font-bold text-slate-900">Tender Dashboard</h1>
+            <h1 className="text-xl font-bold text-slate-900">Project Dashboard</h1>
             <p className="text-sm text-slate-500">Auto-saved locally</p>
           </div>
           <button
@@ -220,7 +221,7 @@ export default function Dashboard({ onLogout }) {
             </div>
 
             <div className="mb-6 grid gap-4 md:grid-cols-3">
-              <Field label="Tender Reference">
+              <Field label="Project Reference">
                 <input className="input" value={tender.reference} onChange={(e) => updateTender({ reference: e.target.value })} />
               </Field>
               <Field label="Submission Deadline">
@@ -268,7 +269,7 @@ export default function Dashboard({ onLogout }) {
                 </button>
               ))}
               <button onClick={() => deleteTender(tender.id)} className="rounded-xl border border-red-200 px-4 py-2 text-sm font-bold text-red-600 hover:bg-red-50">
-                Delete Tender
+                Delete Project
               </button>
             </div>
 
