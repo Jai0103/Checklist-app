@@ -515,34 +515,53 @@ const categoryStats = useMemo(() => {
                     <th className="p-3">Requirement / Action Item</th>
                     <th className="p-3">Mandatory</th>
                     <th className="p-3">Remarks</th>
-                    <th className="p-3">Status</th>
-                    <th className="no-print p-3"></th>
+<th className="p-3">Owner</th>
+<th className="p-3">Priority</th>
+<th className="p-3">Status</th>
+<th className="no-print p-3"></th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredItems.map((item) => (
                     <tr key={item.id} className="border-t border-slate-200">
                       <td className="p-3">
-                        <select className="cell" value={item.category} onChange={(e) => updateItem(item.id, { category: e.target.value })}>
-                          {categories.map((c) => <option key={c}>{c}</option>)}
-                        </select>
-                      </td>
-                      <td className="p-3">
-                        <input className="cell" value={item.requirement} onChange={(e) => updateItem(item.id, { requirement: e.target.value })} />
-                      </td>
-                      <td className="p-3">
-                        <button onClick={() => updateItem(item.id, { mandatory: !item.mandatory })} className={`rounded-full px-3 py-1 text-xs font-bold ${item.mandatory ? "bg-red-100 text-red-700" : "bg-slate-100 text-slate-600"}`}>
-                          {item.mandatory ? "Yes" : "No"}
-                        </button>
-                      </td>
-                      <td className="p-3">
-                        <input className="cell" value={item.remarks} onChange={(e) => updateItem(item.id, { remarks: e.target.value })} />
-                      </td>
-                      <td className="p-3">
-                        <select className="cell" value={item.status} onChange={(e) => updateItem(item.id, { status: e.target.value })}>
-                          {statuses.map((s) => <option key={s}>{s}</option>)}
-                        </select>
-                      </td>
+  <input
+    className="cell"
+    value={item.remarks}
+    onChange={(e) => updateItem(item.id, { remarks: e.target.value })}
+  />
+</td>
+
+<td className="p-3">
+  <input
+    className="cell"
+    value={item.owner || ""}
+    onChange={(e) => updateItem(item.id, { owner: e.target.value })}
+    placeholder="Owner"
+  />
+</td>
+
+<td className="p-3">
+  <select
+    className="cell"
+    value={item.priority || "Medium"}
+    onChange={(e) => updateItem(item.id, { priority: e.target.value })}
+  >
+    <option>High</option>
+    <option>Medium</option>
+    <option>Low</option>
+  </select>
+</td>
+
+<td className="p-3">
+  <select
+    className="cell"
+    value={item.status}
+    onChange={(e) => updateItem(item.id, { status: e.target.value })}
+  >
+    {statuses.map((s) => <option key={s}>{s}</option>)}
+  </select>
+</td>
 <td className="no-print p-3">
   <div className="flex items-center gap-2">
     <button
