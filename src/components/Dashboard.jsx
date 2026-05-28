@@ -397,7 +397,7 @@ export default function Dashboard({ onLogout }) {
               <CategoryCards categoryStats={categoryStats} />
 
               <footer className="mt-8 border-t border-slate-200 pt-4 text-center text-sm text-slate-500">
-                Project Compliance Management System
+                Project Compliance Management System | Built by:<b>Jairus</b>
               </footer>
             </PageCard>
           )}
