@@ -36,6 +36,7 @@ export default function Dashboard({ onLogout }) {
   const [sortStatus, setSortStatus] = useState("");
   const [mandatoryOnly, setMandatoryOnly] = useState(false);
   const [viewItem, setViewItem] = useState(null);
+  const [viewCategory, setViewCategory] = useState(null);
   const [confirmDialog, setConfirmDialog] = useState(null);
 
   const tender = tenders.find((t) => t.id === activeId) || tenders[0];
@@ -394,7 +395,7 @@ export default function Dashboard({ onLogout }) {
                 <div className="h-full bg-blue-700 transition-all" style={{ width: `${analytics.percentage}%` }} />
               </div>
 
-              <CategoryCards categoryStats={categoryStats} />
+              <CategoryCards categoryStats={categoryStats} onViewCategory={setViewCategory} />
 
               <footer className="mt-8 border-t border-slate-200 pt-4 text-center text-sm text-slate-500">
                 Project Compliance Management System | Built by:<b>Jairus</b>
@@ -556,6 +557,14 @@ export default function Dashboard({ onLogout }) {
       {viewItem && (
         <ViewModal item={viewItem} tender={tender} onClose={() => setViewItem(null)} />
       )}
+
+      {viewCategory && (
+  <CategoryModal
+    category={viewCategory}
+    items={tender.checklist.filter((item) => item.category === viewCategory)}
+    onClose={() => setViewCategory(null)}
+  />
+)}
 
       {confirmDialog && (
         <ConfirmDialog
@@ -726,18 +735,130 @@ function Stats({ analytics }) {
   );
 }
 
-function CategoryCards({ categoryStats }) {
+function CategoryCards({ categoryStats, onViewCategory }) {
   return (
     <div className="grid gap-3 md:grid-cols-4">
       {categoryStats.map((item) => (
-        <div key={item.category} className="rounded-2xl border border-slate-200 bg-white p-4">
-          <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">{item.category}</p>
-          <p className="mt-2 text-lg font-bold text-slate-900">{item.completed}/{item.total} completed</p>
+        <button
+          key={item.category}
+          onClick={() => onViewCategory(item.category)}
+          className="rounded-2xl border border-slate-200 bg-white p-4 text-left transition hover:-translate-y-0.5 hover:border-blue-200 hover:bg-blue-50/40 hover:shadow-soft"
+        >
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">
+            {item.category}
+          </p>
+
+          <p className="mt-2 text-lg font-bold text-slate-900">
+            {item.completed}/{item.total} completed
+          </p>
+
           <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
-            <div className="h-full bg-blue-700" style={{ width: `${item.percentage}%` }} />
+            <div
+              className="h-full bg-blue-700"
+              style={{ width: `${item.percentage}%` }}
+            />
+          </div>
+
+          <p className="mt-3 text-xs font-bold text-blue-700">
+            View items
+          </p>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function CategoryModal({ category, items, onClose }) {
+  const completed = items.filter((item) => item.status === "Completed").length;
+  const mandatoryOutstanding = items.filter(
+    (item) => item.mandatory && item.status !== "Completed"
+  ).length;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className="max-h-[88vh] w-full max-w-4xl overflow-hidden rounded-2xl bg-white shadow-2xl"
+      >
+        <div className="flex items-start justify-between gap-4 border-b border-slate-200 p-6">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-700">
+              Category Details
+            </p>
+            <h2 className="mt-2 text-2xl font-bold text-slate-900">
+              {category}
+            </h2>
+            <p className="mt-2 text-sm text-slate-500">
+              {completed}/{items.length} completed · {mandatoryOutstanding} mandatory outstanding
+            </p>
+          </div>
+
+          <button
+            onClick={onClose}
+            className="rounded-xl p-2 text-slate-500 hover:bg-slate-100"
+            title="Close"
+          >
+            <X size={22} />
+          </button>
+        </div>
+
+        <div className="max-h-[62vh] overflow-y-auto p-6">
+          <div className="space-y-3">
+            {items.map((item, index) => (
+              <div
+                key={item.id}
+                className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
+              >
+                <div className="mb-3 flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-slate-200 px-3 py-1 text-xs font-bold text-slate-700">
+                    #{index + 1}
+                  </span>
+
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs font-bold ${
+                      item.mandatory
+                        ? "bg-red-100 text-red-700"
+                        : "bg-slate-200 text-slate-600"
+                    }`}
+                  >
+                    {item.mandatory ? "Mandatory" : "Optional"}
+                  </span>
+
+                  <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-700">
+                    {item.status}
+                  </span>
+
+                  <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-700">
+                    {item.priority || "Medium"}
+                  </span>
+                </div>
+
+                <h3 className="font-bold text-slate-900">
+                  {item.requirement}
+                </h3>
+
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  {item.remarks || "No remarks added."}
+                </p>
+
+                <p className="mt-3 text-xs font-bold uppercase tracking-[0.12em] text-slate-400">
+                  Owner: {item.owner || "Project Team"}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
-      ))}
+
+        <div className="flex justify-end border-t border-slate-200 p-5">
+          <button
+            onClick={onClose}
+            className="rounded-xl bg-blue-700 px-5 py-2.5 text-sm font-bold text-white hover:bg-blue-800"
+          >
+            Close
+          </button>
+        </div>
+      </motion.div>
     </div>
   );
 }
