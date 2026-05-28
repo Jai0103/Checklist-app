@@ -364,13 +364,38 @@ const categoryStats = useMemo(() => {
                 <button onClick={() => exportTenderCsv(tender)} className="flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white">
                   <Download size={16} /> CSV
                 </button>
+                <button
+  onClick={downloadCsvTemplate}
+  className="flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold hover:bg-slate-100"
+>
+  <ClipboardCheck size={16} />
+  CSV Template
+</button>
+
+<button
+  onClick={exportBackup}
+  className="flex items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold hover:bg-slate-100"
+>
+  <Database size={16} />
+  Backup
+</button>
+
+<label className="flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 px-4 py-2 text-sm font-bold hover:bg-slate-100">
+  Import Backup
+  <input
+    type="file"
+    accept="application/json"
+    onChange={importBackup}
+    className="hidden"
+  />
+</label>
                 <button onClick={() => window.print()} className="flex items-center gap-2 rounded-xl bg-blue-700 px-4 py-2 text-sm font-bold text-white">
                   <Printer size={16} /> PDF / Print
                 </button>
               </div>
             </div>
 
-            <div className="mb-6 grid gap-4 md:grid-cols-3">
+            <div className="mb-6 grid gap-4 md:grid-cols-4">
               <Field label="Project Reference">
                 <input className="input" value={tender.reference} onChange={(e) => updateTender({ reference: e.target.value })} />
               </Field>
@@ -382,6 +407,11 @@ const categoryStats = useMemo(() => {
                   {daysLeft === null ? "No deadline set" : daysLeft >= 0 ? `${daysLeft} days left` : "Deadline passed"}
                 </div>
               </Field>
+              <Field label="Project Risk">
+  <div className={`rounded-xl border px-4 py-3 font-bold ${projectRisk.className}`}>
+    {projectRisk.label}
+  </div>
+</Field>
             </div>
 
             <div className="mb-6 grid gap-4 md:grid-cols-5">
@@ -395,8 +425,28 @@ const categoryStats = useMemo(() => {
             <div className="mb-6 h-3 overflow-hidden rounded-full bg-slate-100">
               <div className="h-full bg-blue-700 transition-all" style={{ width: `${analytics.percentage}%` }} />
             </div>
+            <div className="mb-6 grid gap-3 md:grid-cols-4">
+  {categoryStats.map((item) => (
+    <div key={item.category} className="rounded-2xl border border-slate-200 bg-white p-4">
+      <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">
+        {item.category}
+      </p>
 
-            <div className="no-print mb-5 grid gap-3 md:grid-cols-4">
+      <p className="mt-2 text-lg font-bold text-slate-900">
+        {item.completed}/{item.total} completed
+      </p>
+
+      <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100">
+        <div
+          className="h-full bg-blue-700"
+          style={{ width: `${item.percentage}%` }}
+        />
+      </div>
+    </div>
+  ))}
+</div>
+
+            <div className="no-print mb-5 grid gap-3 md:grid-cols-5">
               <div className="relative md:col-span-2">
                 <Search className="absolute left-3 top-3 text-slate-400" size={18} />
                 <input className="input pl-10" placeholder="Search requirements..." value={search} onChange={(e) => setSearch(e.target.value)} />
@@ -409,6 +459,16 @@ const categoryStats = useMemo(() => {
                 <option value="">Sort by Status</option>
                 {statuses.map((s) => <option key={s}>{s}</option>)}
               </select>
+              <button
+  onClick={() => setMandatoryOnly(!mandatoryOnly)}
+  className={`rounded-xl px-4 py-2 text-sm font-bold ${
+    mandatoryOnly
+      ? "bg-red-600 text-white"
+      : "border border-slate-200 text-slate-700 hover:bg-slate-100"
+  }`}
+>
+  Mandatory Outstanding
+</button>
             </div>
 
            <div className="no-print mb-5 flex flex-wrap gap-2">
