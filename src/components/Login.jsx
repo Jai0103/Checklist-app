@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { LockKeyhole, ShieldCheck } from "lucide-react";
+import { LockKeyhole } from "lucide-react";
 
 export default function Login({ onLogin }) {
   const [form, setForm] = useState({ username: "", password: "" });
@@ -29,12 +29,16 @@ export default function Login({ onLogin }) {
         >
           <section className="hidden bg-gradient-to-br from-slate-950 via-blue-950 to-slate-900 p-10 md:flex md:flex-col md:justify-between">
             <div>
-              <div className="mb-10 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-white ring-1 ring-white/20">
-                <ShieldCheck size={30} />
-              </div>
+<div className="mb-10 flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-white p-2">
+  <img
+    src="./logo.png"
+    alt="Company Logo"
+    className="h-full w-full object-contain"
+  />
+</div>
 
               <h1 className="max-w-md text-4xl font-bold leading-tight">
-                Tender submission control for serious internal teams.
+                Tender submission control for internal teams.
               </h1>
 
               <p className="mt-5 max-w-md text-sm leading-6 text-blue-100/80">
@@ -45,22 +49,26 @@ export default function Login({ onLogin }) {
 
             <div className="grid grid-cols-3 gap-3 text-xs text-blue-100/80">
               <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
-                Local only
+                Powered By: Jai0103
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
-                No backend
+                Static
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
-                GitHub Pages
+                Github
               </div>
             </div>
           </section>
 
           <form onSubmit={submit} className="bg-white p-8 text-slate-900 md:p-12">
             <div className="mb-8">
-              <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-700 text-white shadow-lg shadow-blue-700/20">
-                <LockKeyhole size={28} />
-              </div>
+<div className="mb-5 flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+  <img
+    src="./logo.png"
+    alt="Company Logo"
+    className="h-full w-full object-contain p-2"
+  />
+</div>
 
               <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-blue-700">
                 Authorized Access Only
@@ -80,7 +88,7 @@ export default function Login({ onLogin }) {
               className="input mt-2 mb-5"
               value={form.username}
               onChange={(e) => setForm({ ...form, username: e.target.value })}
-              placeholder="admin"
+              placeholder="Enter username"
             />
 
             <label className="text-sm font-bold text-slate-700">Password</label>
@@ -89,7 +97,7 @@ export default function Login({ onLogin }) {
               className="input mt-2"
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
-              placeholder="tender2026"
+              placeholder="Enter password"
             />
 
             {error && (
