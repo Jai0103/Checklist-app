@@ -27,8 +27,10 @@ export const defaultChecklist = [
   requirement: item[1],
   mandatory: item[2],
   remarks: item[3],
-  status: "Not Started",
-  order: index + 1
+status: "Not Started",
+owner: item[2] ? "Project Team" : "Admin",
+priority: item[2] ? "High" : "Medium",
+order: index + 1
 }));
 
 export function createDefaultTender() {
